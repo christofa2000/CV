@@ -1,0 +1,16 @@
+
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    // Asegura que Jest entienda JSX
+    "jsx": "react-jsx",
+    // Mejora la compatibilidad con módulos CommonJS
+    "esModuleInterop": true 
+  },
+  // Incluye los archivos de prueba y de setup en el contexto de Jest
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "__mocks__/**/*.js"
+  ]
+}
