@@ -1,0 +1,6 @@
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* El resto de los estilos del body y la animación ahora están en theme.tsx */
