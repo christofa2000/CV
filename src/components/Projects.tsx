@@ -4,7 +4,7 @@ import { OpenInNew } from "@mui/icons-material";
 
 const Projects = () => {
     return (
-        <Card id="projects" sx={{ mb: 3 }}>
+        <Card id="projects" sx={{ mb: 3, backgroundColor: 'transparent', boxShadow: 'none' }}>
             <CardContent>
                 <Typography variant="h5" component="h2" gutterBottom>
                     🚀 Proyecto Destacado

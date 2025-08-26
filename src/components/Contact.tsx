@@ -4,7 +4,7 @@ import { Mail, Phone, GitHub } from "@mui/icons-material";
 
 const Contact = () => {
     return (
-        <Card id="contact" sx={{ mb: 3 }}>
+        <Card id="contact" sx={{ mb: 3, backgroundColor: 'transparent', boxShadow: 'none' }}>
             <CardContent sx={{ textAlign: 'center' }}>
                 <Typography variant="h5" component="h2" gutterBottom>
                     📨 Contacto
