@@ -1,4 +1,5 @@
-import { Card, CardContent, Typography } from "@mui/material";
+import { Card, CardContent, Typography, Button, Box } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
 
 const AboutMe = () => {
   return (
@@ -10,7 +11,7 @@ const AboutMe = () => {
         <Typography variant="h5" component="h2" gutterBottom>
           👨‍💻 Sobre Mí
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="text.secondary" paragraph>
           Me encanta crear interfaces modernas, rápidas y bien pensadas con
           React, Vite y TypeScript. Escribir código limpio, organizado y fácil
           de mantener siempre es lo mejor para que el proyecto pueda escalar sin
@@ -22,6 +23,20 @@ const AboutMe = () => {
           asegurar la calidad y confiabilidad del código. Busco que la
           experiencia sea fluida y el código, claro para todo el equipo.
         </Typography>
+
+        {/* Botón de descarga */}
+        <Box sx={{ mt: 2 }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            component="a"
+            href="/CV-ChristianPapa.pdf" // 📂 archivo en public/
+            download
+            startIcon={<DownloadIcon />}
+          >
+            Descargar CV
+          </Button>
+        </Box>
       </CardContent>
     </Card>
   );
