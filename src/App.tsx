@@ -5,7 +5,8 @@ import AboutMe from "./components/AboutMe";
 import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Body from "./layout/Body";
-import WarpSpeedBackground from "./components/WarpSpeedBackground"; // 👈 nuevo import
+import WarpSpeedBackground from "./components/WarpSpeedBackground";
+// 👈 nuevo import
 
 // Hook: animación escalonada con soporte reduced-motion
 const useAnimatedSections = (count: number) => {
