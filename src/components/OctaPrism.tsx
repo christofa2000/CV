@@ -50,7 +50,7 @@ export default function OctaPrism({
 
   const [rot, setRot] = useState<{ x: number; y: number }>({ x: -10, y: 20 });
   const [zoom, setZoom] = useState(1);
-  const [playing, setPlaying] = useState(autoRotate);
+  const [playing] = useState(autoRotate);
   const [dragging, setDragging] = useState(false);
 
   const startRef = useRef<{ x: number; y: number } | null>(null);
