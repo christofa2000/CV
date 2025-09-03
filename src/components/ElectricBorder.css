@@ -1,0 +1,62 @@
+.electric-border {
+  position: relative;
+  display: block;
+  --electric-border-color: #7df9ff;
+  --eb-border-width: 2px;
+  border-radius: inherit;
+}
+
+.electric-border .eb-svg {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.electric-border .eb-layers {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.electric-border .eb-stroke {
+  position: absolute;
+  inset: 0;
+  border: var(--eb-border-width) solid var(--electric-border-color);
+  border-radius: inherit;
+}
+
+.electric-border .eb-glow-1,
+.electric-border .eb-glow-2,
+.electric-border .eb-background-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.electric-border .eb-glow-1 {
+  box-shadow: 0 0 16px var(--electric-border-color),
+    inset 0 0 16px var(--electric-border-color);
+  opacity: 0.35;
+  filter: blur(2px);
+}
+
+.electric-border .eb-glow-2 {
+  box-shadow: 0 0 28px var(--electric-border-color),
+    inset 0 0 28px var(--electric-border-color);
+  opacity: 0.22;
+  filter: blur(4px);
+}
+
+.electric-border .eb-background-glow {
+  box-shadow: 0 0 60px var(--electric-border-color);
+  opacity: 0.12;
+  filter: blur(10px);
+}
+
+.electric-border .eb-content {
+  position: relative;
+  border-radius: inherit;
+}

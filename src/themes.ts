@@ -13,7 +13,6 @@ const createBaseThemeOptions = (options: ThemeOptions): ThemeOptions => ({
     // Dejamos solo lo global necesario (fuente + fondo neutro)
     MuiCssBaseline: {
       styleOverrides: `
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
         body {
           background-color: #000;  /* fondo neutro para el warp */
           background-image: none;  /* quitamos estrellas CSS */

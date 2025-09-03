@@ -23,10 +23,7 @@ const DEFAULT_ICONS: IconItem[] = [
   },
   { label: "Material UI", url: "https://cdn.simpleicons.org/mui/FFFFFF" },
   { label: "Bootstrap", url: "https://cdn.simpleicons.org/bootstrap/FFFFFF" },
-  {
-    label: "Zustand",
-    url: "data:image/svg+xml,%3csvg width='512' height='512' viewBox='0 0 512 512' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M139.083 256.001C139.083 188.634 193.249 134.468 260.616 134.468C327.983 134.468 382.149 188.634 382.149 256.001C382.149 323.368 327.983 377.534 260.616 377.534C193.249 377.534 139.083 323.368 139.083 256.001Z' stroke='white' stroke-width='20'/%3e%3cpath d='M260.615 256.001C260.615 222.317 287.481 195.451 321.165 195.451' stroke='white' stroke-width='20'/%3e%3c/svg%3e",
-  },
+  { label: "Zustand", url: "https://cdn.simpleicons.org/zustand/FFFFFF" },
   {
     label: "React Query",
     url: "https://cdn.simpleicons.org/reactquery/FFFFFF",

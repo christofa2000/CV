@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Box, Container, Fade } from "@mui/material";
 import Header from "./components/Header";
+import { LanguageProvider } from "./LanguageContext";
 import AboutMe from "./components/AboutMe";
 import Projects from "./components/Projects";
 import Contact from "./components/Contact";
@@ -60,7 +61,7 @@ function App() {
   const loadedSections = useAnimatedSections(sections.length);
 
   return (
-    <>
+    <LanguageProvider>
       {/* Fondo hipervelocidad detrás de todo */}
       <WarpSpeedBackground
         style={{
@@ -101,7 +102,7 @@ function App() {
           </Box>
         </Container>
       </Box>
-    </>
+    </LanguageProvider>
   );
 }
 

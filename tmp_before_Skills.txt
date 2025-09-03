@@ -1,0 +1,132 @@
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Chip,
+  Avatar,
+} from "@mui/material";
+import {} from "@mui/material/styles";
+import { useState } from "react";
+
+import { skillsData, softSkills } from "../data/skills";
+import type { SkillItem } from "../data/skills";
+
+const SkillChip = ({ skill }: { skill: SkillItem }) => {
+  const [imgError, setImgError] = useState(false);
+  const iconUrl = `https://cdn.simpleicons.org/${skill.logo}/${skill.logoColor}`;
+
+  const fallbackIcon = (
+    <Avatar
+      sx={{
+        bgcolor: `#${skill.color}`,
+        color: skill.logoColor,
+        fontSize: "0.9rem",
+        width: 24,
+        height: 24,
+      }}
+    >
+      {skill.name.substring(0, 2)}
+    </Avatar>
+  );
+
+  return (
+    <Chip
+      avatar={
+        imgError ? (
+          fallbackIcon
+        ) : (
+          <Avatar
+            src={iconUrl}
+            alt={skill.name}
+            sx={{ p: 0.5 }}
+            imgProps={{
+              onError: () => setImgError(true),
+              loading: "lazy",
+            }}
+          />
+        )
+      }
+      label={skill.name}
+      variant="outlined"
+      sx={{
+        cursor: "pointer",
+        transition: "all 0.2s ease-in-out",
+        "&:hover": {
+          transform: "translateY(-2px)",
+          boxShadow: `0 4px 12px 0 rgba(0,0,0,0.12)`,
+          backgroundColor: `#${skill.color}20`,
+        },
+      }}
+    />
+  );
+};
+
+const SkillSection = ({
+  title,
+  skills,
+}: {
+  title: string;
+  skills: SkillItem[];
+}) => (
+  <Box sx={{ mb: 3 }}>
+    <Typography variant="h6" gutterBottom>
+      {title}
+    </Typography>
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+      {skills.map((skill) => (
+        <SkillChip key={skill.name} skill={skill} />
+      ))}
+    </Box>
+  </Box>
+);
+
+const Skills = () => {
+  return (
+    <Card
+      id="skills"
+      variant="outlined"
+      sx={{
+        mb: 3,
+        p: 1,
+        backgroundColor: "transparent",
+        boxShadow: "none",
+        borderColor: "rgba(255,255,255,0.08)",
+      }}
+    >
+      <CardContent>
+        <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 3 }}>
+          🛠️ Habilidades
+        </Typography>
+
+        <SkillSection title="Lenguajes" skills={skillsData.languages} />
+        <SkillSection
+          title="Frameworks y Librerías"
+          skills={skillsData.frameworks}
+        />
+        <SkillSection
+          title="Software y Herramientas"
+          skills={skillsData.tools}
+        />
+
+        <Typography variant="h6" gutterBottom sx={{ mt: 4 }} align="center">
+          Habilidades Blandas
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 1.5,
+            justifyContent: "center",
+          }}
+        >
+          {softSkills.map((skill) => (
+            <SkillChip key={skill.name} skill={skill} />
+          ))}
+        </Box>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default Skills;

@@ -1,7 +1,23 @@
-import { Card, CardContent, Typography, Button, Box } from "@mui/material";
-import DownloadIcon from "@mui/icons-material/Download";
+import { Card, CardContent, Typography } from "@mui/material";
+import { useLanguage } from "../LanguageContext";
 
 const AboutMe = () => {
+  const { lang } = useLanguage();
+  const t = {
+    es: {
+      title: "Sobre Mí",
+      p1: "Me encanta crear interfaces modernas, rápidas y bien pensadas con React, Vite y TypeScript.",
+      p2: "Escribir código limpio, organizado y fácil de mantener permite escalar proyectos sin dolores de cabeza.",
+      p3: "Uso Zustand, React Query y diseño con Tailwind, Ant Design o ShadCN, según lo que necesite el proyecto. También escribo tests con Jest para asegurar la calidad.",
+    },
+    en: {
+      title: "About Me",
+      p1: "I love building modern, fast and thoughtful interfaces with React, Vite and TypeScript.",
+      p2: "Writing clean, organized and maintainable code helps projects scale without headaches.",
+      p3: "I use Zustand, React Query and design systems like Tailwind, Ant Design or ShadCN, depending on the project needs. I also write tests with Jest to ensure quality.",
+    },
+  }[lang];
+
   return (
     <Card
       id="about-me"
@@ -9,34 +25,14 @@ const AboutMe = () => {
     >
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          👨‍💻 Sobre Mí
+          {t.title}
         </Typography>
         <Typography variant="body1" color="text.secondary" paragraph>
-          Me encanta crear interfaces modernas, rápidas y bien pensadas con
-          React, Vite y TypeScript. Escribir código limpio, organizado y fácil
-          de mantener siempre es lo mejor para que el proyecto pueda escalar sin
-          dolores de cabeza.
+          {t.p1} {t.p2}
           <br />
           <br />
-          Uso Zustand, React Query y diseño con Tailwind, Ant Design o ShadCN,
-          según lo que necesite el proyecto. También escribo tests con Jest para
-          asegurar la calidad y confiabilidad del código. Busco que la
-          experiencia sea fluida y el código, claro para todo el equipo.
+          {t.p3}
         </Typography>
-
-        {/* Botón de descarga */}
-        <Box sx={{ mt: 2 }}>
-          <Button
-            variant="outlined"
-            color="primary"
-            component="a"
-            href="/CV-ChristianPapa.pdf" // 📂 archivo en public/
-            download
-            startIcon={<DownloadIcon />}
-          >
-            Descargar CV
-          </Button>
-        </Box>
       </CardContent>
     </Card>
   );

@@ -12,9 +12,9 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import OpenInNew from "@mui/icons-material/OpenInNew";
-import { memo, useEffect, useState } from "react";
-import { useLanguage } from "../LanguageContext";
+import { memo, useState } from "react";
 
+// Ajustá la ruta si ElectricBorder está en otra carpeta
 import ElectricBorder from "./ElectricBorder";
 
 /* =======================
@@ -22,8 +22,8 @@ import ElectricBorder from "./ElectricBorder";
 ======================= */
 type SkillItem = {
   name: string; // nombre visible
-  logo: string; // slug de simpleicons (https://simpleicons.org/)
-  logoColor: string; // hex sin # o palabras white/black
+  logo: string; // slug de simpleicons (https://simpleicons.org/). Si no existe o vacío -> fallback
+  logoColor: string; // hex sin # ("FFFFFF" | "fff" | "white")
   color: string; // hex sin # para hover/fondo
 };
 
@@ -47,47 +47,13 @@ const normalizeHex = (c?: string) => {
 };
 
 /* =======================
-   Chip con icono (con preload + fallback)
+   Chip con ícono (compacto + fallback)
 ======================= */
 const SkillChip = memo(({ skill }: { skill: SkillItem }) => {
   const [imgError, setImgError] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [imgSrc, setImgSrc] = useState<string | null>(null);
-  const [invert, setInvert] = useState(false);
   const slug = (skill.logo || "").trim().toLowerCase();
   const color = normalizeHex(skill.logoColor);
-  const urlColored = slug
-    ? `https://cdn.simpleicons.org/${slug}?color=${color}`
-    : "";
-
-  useEffect(() => {
-    setImgLoaded(false);
-    setImgError(false);
-    setImgSrc(null);
-    setInvert(false);
-    if (!urlColored) return;
-    const img = new Image();
-    img.onload = () => {
-      setImgSrc(urlColored);
-      setImgLoaded(true);
-    };
-    img.onerror = () => {
-      const altUrl = `https://cdn.simpleicons.org/${slug}`;
-      const img2 = new Image();
-      img2.onload = () => {
-        setImgSrc(altUrl);
-        setInvert(true);
-        setImgLoaded(true);
-      };
-      img2.onerror = () => setImgError(true);
-      img2.src = altUrl;
-    };
-    img.src = urlColored;
-    return () => {
-      img.onload = null as any;
-      img.onerror = null as any;
-    };
-  }, [urlColored]);
+  const iconUrl = slug ? `https://cdn.simpleicons.org/${slug}/${color}` : "";
 
   const fallbackIcon = (
     <Avatar
@@ -107,18 +73,13 @@ const SkillChip = memo(({ skill }: { skill: SkillItem }) => {
     <Chip
       size="small"
       avatar={
-        imgError || !imgSrc || !imgLoaded ? (
+        imgError || !iconUrl ? (
           fallbackIcon
         ) : (
           <Avatar
-            src={imgSrc}
+            src={iconUrl}
             alt={skill.name}
-            sx={{
-              p: 0.35,
-              width: 22,
-              height: 22,
-              filter: invert ? "invert(1)" : undefined,
-            }}
+            sx={{ p: 0.35, width: 22, height: 22 }}
             imgProps={{ onError: () => setImgError(true), loading: "lazy" }}
           />
         )
@@ -177,13 +138,20 @@ const projects: Project[] = [
         color: "1F1B24",
       },
       { name: "Vite", logo: "vite", logoColor: "FFD62E", color: "1A1A1A" },
+      {
+        name: "Google Maps",
+        logo: "googlemaps",
+        logoColor: "4285F4",
+        color: "0B1220",
+      },
     ],
   },
   {
     title: "Oráculo",
     imageSrc: "/images/oraculo.png",
     url: "https://oraculopica.netlify.app/",
-    description: "App tipo oráculo con Supabase y flujo simple de rutas.",
+    description:
+      "Aplicación tipo oráculo desarrollada con Supabase y un stack moderno.",
     stack: [
       {
         name: "React + TypeScript (Vite)",
@@ -209,78 +177,32 @@ const projects: Project[] = [
         logoColor: "CA4245",
         color: "1A1A1A",
       },
-    ],
-  },
-  {
-    title: "Cripto Dashboard",
-    imageSrc: "/images/cripto.png",
-    // url: "https://tulink.com" // opcional, si tenés demo pública
-    description:
-      "🎨 Neumorphic: formulario hundido e inputs elevados. 🌈 Fondo dinámico con hue-rotate. ⚡ Datos en tiempo real desde CoinGecko. 🧑🏻‍💻 React + Vite + TypeScript + Zustand.",
-    stack: [
-      { name: "React", logo: "react", logoColor: "61DAFB", color: "20232A" },
-      { name: "Vite", logo: "vite", logoColor: "646CFF", color: "1A1A1A" },
-      {
-        name: "Zustand",
-        logo: "zustand",
-        logoColor: "000000",
-        color: "111827",
-      }, // si el ícono no existe, usa fallback
-      {
-        name: "CSS3 (Neumorphic)",
-        logo: "css3",
-        logoColor: "1572B6",
-        color: "0B1220",
-      },
-      {
-        name: "TypeScript",
-        logo: "typescript",
-        logoColor: "3178C6",
-        color: "0F172A",
-      },
-      {
-        name: "Google Fonts (Outfit)",
-        logo: "googlefonts",
-        logoColor: "4285F4",
-        color: "0B1220",
-      },
-      { name: "Jest", logo: "jest", logoColor: "C21325", color: "1A1A1A" },
+      { name: "Vitest", logo: "vitest", logoColor: "6E9F18", color: "0F172A" },
       {
         name: "Testing Library",
         logo: "testinglibrary",
         logoColor: "E33332",
-        color: "1A1A1A",
-      },
-      {
-        name: "CoinGecko API",
-        logo: "coingecko",
-        logoColor: "00D36E",
-        color: "0B1220",
+        color: "111111",
       },
     ],
   },
 ];
 
 /* =======================
-   Card compacta (con ElectricBorder)
+   Card más grande (con ElectricBorder)
 ======================= */
-const MAX_CHIPS = 6;
+const MAX_CHIPS = 7;
 
 const ProjectCard = ({ project }: { project: Project }) => {
-  const { lang } = useLanguage();
-  const t = {
-    es: { view: "Ver Proyecto", noimg: "Imagen no disponible" },
-    en: { view: "View Project", noimg: "Image unavailable" },
-  }[lang];
   const [imgOk, setImgOk] = useState(true);
 
   return (
     <ElectricBorder
       color="#7df9ff"
       speed={1}
-      chaos={0.55}
-      thickness={1.25}
-      style={{ borderRadius: 12 }}
+      chaos={0.6}
+      thickness={2}
+      style={{ borderRadius: 16 }}
     >
       <Card
         className="project-card"
@@ -288,7 +210,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
         sx={{
           height: "100%",
           backgroundColor: "transparent",
-          border: "none",
+          border: "none", // el borde lo dibuja ElectricBorder
           borderRadius: 2,
           overflow: "hidden",
           transition: "transform .2s ease, box-shadow .2s ease",
@@ -298,6 +220,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
           },
         }}
       >
+        {/* Imagen más alta para sensación de “card grande” */}
         {imgOk ? (
           <Box
             component="img"
@@ -307,7 +230,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
             onError={() => setImgOk(false)}
             sx={{
               width: "100%",
-              aspectRatio: "4/3",
+              aspectRatio: "4/3", // 👈 más alto que 16/9
               objectFit: "cover",
               display: "block",
             }}
@@ -324,7 +247,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
             }}
           >
             <Typography variant="body2" color="text.secondary">
-              {t.noimg}
+              Imagen no disponible
             </Typography>
           </Box>
         )}
@@ -333,13 +256,14 @@ const ProjectCard = ({ project }: { project: Project }) => {
           <Typography variant="h6" fontWeight={700} gutterBottom>
             {project.title}
           </Typography>
+
           {project.description && (
             <Typography
               variant="body2"
               color="text.secondary"
               sx={{
                 display: "-webkit-box",
-                WebkitLineClamp: 4,
+                WebkitLineClamp: 4, // 👈 más texto visible
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
                 mb: 1.25,
@@ -349,6 +273,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
             </Typography>
           )}
 
+          {/* Chips (máx N + “+X”) */}
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
             {project.stack.slice(0, MAX_CHIPS).map((s) => (
               <SkillChip key={`${project.title}-${s.name}`} skill={s} />
@@ -375,7 +300,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {t.view}
+                Ver Proyecto
               </Button>
             </CardActions>
           </>
@@ -386,20 +311,16 @@ const ProjectCard = ({ project }: { project: Project }) => {
 };
 
 /* =======================
-   Grid responsivo
+   Grid responsivo (más grande aún)
 ======================= */
 const Projects = () => {
-  const { lang } = useLanguage();
-  const t = { es: { title: "Proyectos" }, en: { title: "Projects" } }[lang];
   return (
     <Box id="projects" sx={{ mb: 5, backgroundColor: "transparent" }}>
-      <Typography
-        variant="h5"
-        component="h2"
-        sx={{ textAlign: "center", mb: { xs: 2, sm: 3 } }}
-      >
-        {t.title}
+      <Typography variant="h5" component="h2" gutterBottom>
+        🚀 Proyectos
       </Typography>
+
+      {/* XS=1, SM=2, MD=2 por fila, LG=3 por fila (cards más grandes) */}
       <Grid container spacing={2.5}>
         {projects.map((p) => (
           <Grid key={p.title} size={{ xs: 12, sm: 6, md: 6, lg: 4 }}>
@@ -412,3 +333,4 @@ const Projects = () => {
 };
 
 export default Projects;
+

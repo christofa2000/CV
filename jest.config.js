@@ -1,6 +1,6 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
-  preset: 'ts-jest',
+  // preset: 'ts-jest', // Remove this line
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   moduleNameMapper: {
@@ -8,13 +8,7 @@ export default {
     '\.(gif|ttf|eot|svg|png)$' : '<rootDir>/__mocks__/fileMock.js',
   },
   transform: {
-    '^.+\.tsx?$': [
-      'ts-jest',
-      {
-        // Apunta a la configuración de TypeScript específica para Jest
-        tsconfig: 'tsconfig.jest.json',
-      },
-    ],
+    '^.+\.(ts|tsx)$': 'babel-jest', // Use babel-jest for ts and tsx files
   },
   transformIgnorePatterns: [
     '/node_modules/(?!your-es-module-to-transform)/',

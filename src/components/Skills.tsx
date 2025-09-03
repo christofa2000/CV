@@ -1,26 +1,70 @@
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Chip,
-  Avatar,
-} from "@mui/material";
+import { Card, CardContent, Typography, Box, Chip, Avatar } from "@mui/material";
 import {} from "@mui/material/styles";
-import { useState } from "react";
+import { useEffect, useState, memo } from "react";
+import { useLanguage } from "../LanguageContext";
 
 import { skillsData, softSkills } from "../data/skills";
 import type { SkillItem } from "../data/skills";
 
-const SkillChip = ({ skill }: { skill: SkillItem }) => {
+const normalizeHex = (c?: string) => {
+  if (!c) return "ffffff";
+  const m = c.trim().toLowerCase();
+  if (m === "white") return "ffffff";
+  if (m === "black") return "000000";
+  return m.replace(/^#/, "");
+};
+
+const remapSlug = (slug: string) => {
+  const s = (slug || "").trim().toLowerCase();
+  if (s === "next.js") return "nextdotjs";
+  if (s === "node.js") return "nodedotjs";
+  return s;
+};
+
+const SkillChip = memo(({ skill }: { skill: SkillItem }) => {
   const [imgError, setImgError] = useState(false);
-  const iconUrl = `https://cdn.simpleicons.org/${skill.logo}/${skill.logoColor}`;
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [invert, setInvert] = useState(false);
+  const slug = remapSlug(skill.logo);
+  const color = normalizeHex(skill.logoColor);
+  const iconUrl = slug ? `https://cdn.simpleicons.org/${slug}?color=${color}` : "";
+
+  // Preload with fallback (uncolored) to avoid flicker
+  useEffect(() => {
+    setImgLoaded(false);
+    setImgError(false);
+    setImgSrc(null);
+    setInvert(false);
+    if (!iconUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      setImgSrc(iconUrl);
+      setImgLoaded(true);
+    };
+    img.onerror = () => {
+      const altUrl = `https://cdn.simpleicons.org/${slug}`;
+      const img2 = new Image();
+      img2.onload = () => {
+        setImgSrc(altUrl);
+        setInvert(true);
+        setImgLoaded(true);
+      };
+      img2.onerror = () => setImgError(true);
+      img2.src = altUrl;
+    };
+    img.src = iconUrl;
+    return () => {
+      img.onload = null as any;
+      img.onerror = null as any;
+    };
+  }, [iconUrl]);
 
   const fallbackIcon = (
     <Avatar
       sx={{
         bgcolor: `#${skill.color}`,
-        color: skill.logoColor,
+        color: `#${color}`,
         fontSize: "0.9rem",
         width: 24,
         height: 24,
@@ -32,21 +76,16 @@ const SkillChip = ({ skill }: { skill: SkillItem }) => {
 
   return (
     <Chip
-      avatar={
-        imgError ? (
-          fallbackIcon
-        ) : (
-          <Avatar
-            src={iconUrl}
-            alt={skill.name}
-            sx={{ p: 0.5 }}
-            imgProps={{
-              onError: () => setImgError(true),
-              loading: "lazy",
-            }}
-          />
-        )
-      }
+      avatar={imgError || !imgSrc || !imgLoaded ? (
+        fallbackIcon
+      ) : (
+        <Avatar
+          src={imgSrc}
+          alt={skill.name}
+          sx={{ p: 0.5, filter: invert ? "invert(1)" : undefined }}
+          imgProps={{ onError: () => setImgError(true), loading: "lazy" }}
+        />
+      )}
       label={skill.name}
       variant="outlined"
       sx={{
@@ -60,15 +99,10 @@ const SkillChip = ({ skill }: { skill: SkillItem }) => {
       }}
     />
   );
-};
+});
+SkillChip.displayName = "SkillChip";
 
-const SkillSection = ({
-  title,
-  skills,
-}: {
-  title: string;
-  skills: SkillItem[];
-}) => (
+const SkillSection = ({ title, skills }: { title: string; skills: SkillItem[] }) => (
   <Box sx={{ mb: 3 }}>
     <Typography variant="h6" gutterBottom>
       {title}
@@ -82,44 +116,39 @@ const SkillSection = ({
 );
 
 const Skills = () => {
+  const { lang } = useLanguage();
+  const t = {
+    es: {
+      title: "Habilidades",
+      languages: "Lenguajes",
+      frameworks: "Frameworks y Librerías",
+      tools: "Software y Herramientas",
+      soft: "Habilidades Blandas",
+    },
+    en: {
+      title: "Skills",
+      languages: "Languages",
+      frameworks: "Frameworks & Libraries",
+      tools: "Software & Tools",
+      soft: "Soft Skills",
+    },
+  }[lang];
+
   return (
-    <Card
-      id="skills"
-      variant="outlined"
-      sx={{
-        mb: 3,
-        p: 1,
-        backgroundColor: "transparent",
-        boxShadow: "none",
-        borderColor: "rgba(255,255,255,0.08)",
-      }}
-    >
+    <Card id="skills" variant="outlined" sx={{ mb: 3, p: 1, backgroundColor: "transparent", boxShadow: "none", borderColor: "rgba(255,255,255,0.08)" }}>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 3 }}>
-          🛠️ Habilidades
+          {t.title}
         </Typography>
 
-        <SkillSection title="Lenguajes" skills={skillsData.languages} />
-        <SkillSection
-          title="Frameworks y Librerías"
-          skills={skillsData.frameworks}
-        />
-        <SkillSection
-          title="Software y Herramientas"
-          skills={skillsData.tools}
-        />
+        <SkillSection title={t.languages} skills={skillsData.languages} />
+        <SkillSection title={t.frameworks} skills={skillsData.frameworks} />
+        <SkillSection title={t.tools} skills={skillsData.tools} />
 
         <Typography variant="h6" gutterBottom sx={{ mt: 4 }} align="center">
-          Habilidades Blandas
+          {t.soft}
         </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 1.5,
-            justifyContent: "center",
-          }}
-        >
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, justifyContent: "center" }}>
           {softSkills.map((skill) => (
             <SkillChip key={skill.name} skill={skill} />
           ))}
@@ -130,3 +159,4 @@ const Skills = () => {
 };
 
 export default Skills;
+
