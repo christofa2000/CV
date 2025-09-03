@@ -85,8 +85,7 @@ export default function InnerThreeScene() {
       <directionalLight position={[4, 6, 8]} intensity={0.9} castShadow />
       <directionalLight position={[-4, -2, -6]} intensity={0.3} />
 
-      <OctaPrismR3F />
-      {/* <OrbitControls enablePan={false} enableZoom={false} />  opcional en debug */}
+      {/** Mesh retirado para mantener el look original */}
     </Canvas>
   );
 }
