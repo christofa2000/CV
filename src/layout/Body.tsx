@@ -55,7 +55,7 @@ export default function Body() {
     <Box
       sx={{
         px: { xs: 2, md: 3 },
-        py: 3,
+        py: { xs: 2, md: 2 },
         width: "100%",
         background: "transparent",
       }}
@@ -64,18 +64,25 @@ export default function Body() {
         sx={{
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "0.8fr 1.2fr" },
+          // Asegura que OctaPrism y Skills queden en la misma fila en desktop
+          gridTemplateAreas: {
+            xs: '"octa" "skills"',
+            md: '"octa skills"',
+          } as any,
           gap: { xs: 3, md: 3 },
           alignItems: "start",
           background: "transparent",
           position: "relative",
         }}
       >
-        {/* Placeholder para estabilizar layout del shell 3D en desktop */}
-        <Box aria-hidden sx={{ display: { xs: "none", md: "block" }, minHeight: 360 }} />
         {/** Carga condicional del Canvas solo en desktop, visible y sin reduced-motion */}
         <ConditionalCanvas />
-        <OctaPrism />
-        <Skills />
+        <Box sx={{ gridArea: { xs: "octa", md: "octa" }, zIndex: 1 }}>
+          <OctaPrism />
+        </Box>
+        <Box sx={{ gridArea: { xs: "skills", md: "skills" }, zIndex: 1 }}>
+          <Skills />
+        </Box>
       </Box>
     </Box>
   );

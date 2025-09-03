@@ -21,7 +21,7 @@ const AboutMe = () => {
   return (
     <Card
       id="about-me"
-      sx={{ mb: 3, backgroundColor: "transparent", boxShadow: "none" }}
+      sx={{ mb: 2, backgroundColor: "transparent", boxShadow: "none" }}
     >
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
