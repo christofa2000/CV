@@ -22,19 +22,20 @@ function KickOnLifecycle() {
 
 function OctaPrismR3F() {
   const invalidate = useThree((s) => s.invalidate);
+  const gl = useThree((s) => s.gl);
   const meshRef = useRef<THREE.Mesh | null>(null);
   const [hover, setHover] = useState(false);
   const inViewRef = useRef(true);
 
   useEffect(() => {
-    const el = (meshRef.current as any)?.__r3f?.root?.gl.domElement as HTMLElement | undefined;
-    const target = el ?? document.body;
+    const target = (gl as any)?.domElement as HTMLElement | undefined;
+    if (!target || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) inViewRef.current = e.isIntersecting;
     });
     io.observe(target);
     return () => io.disconnect();
-  }, []);
+  }, [gl]);
 
   const geom = useMemo(() => new THREE.OctahedronGeometry(1.2, 0), []);
   const mat = useMemo(() => new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.15, roughness: 0.35 }), []);
