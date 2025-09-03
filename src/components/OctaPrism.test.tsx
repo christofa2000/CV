@@ -11,7 +11,7 @@ describe('OctaPrism', () => {
     act(() => {
       render(<OctaPrism />);
     });
-    expect(screen.getByRole('img', { name: /react/i })).toBeInTheDocument();
+    expect(screen.getByAltText('React')).toBeInTheDocument();
   });
 
   it('renders with default icons and labels', () => {
@@ -60,14 +60,15 @@ describe('OctaPrism', () => {
       throw new Error('Root element not found');
     }
 
-    const initialTransform = root.querySelector('.camera')?.getAttribute('style');
+    const cam = root.querySelector('.camera') as HTMLElement | null;
+    const initialTransform = cam?.style.transform || '';
 
     act(() => {
       fireEvent.pointerDown(root, { clientX: 100, clientY: 100, pointerId: 1 });
       fireEvent.pointerMove(root, { clientX: 150, clientY: 150, pointerId: 1 });
     });
 
-    const draggedTransform = root.querySelector('.camera')?.getAttribute('style');
+    const draggedTransform = (root.querySelector('.camera') as HTMLElement | null)?.style.transform || '';
     expect(draggedTransform).not.toBe(initialTransform);
 
     act(() => {

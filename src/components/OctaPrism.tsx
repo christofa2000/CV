@@ -46,6 +46,7 @@ export default function OctaPrism({
   const panelH = size;
 
   const [dragging, setDragging] = useState(false);
+  const draggingRef = useRef(false);
   const startRef = useRef<{ x: number; y: number } | null>(null);
   const rotRef = useRef<{ x: number; y: number }>({ x: -10, y: 20 });
   const baseRotRef = useRef(rotRef.current);
@@ -68,6 +69,9 @@ export default function OctaPrism({
       const z = zoomRef.current;
       el.style.transform = `scale(${z}) rotateX(${x}deg) rotateY(${y}deg)`;
     };
+
+    // Establece transform inicial para tests/JSDOM y primera pintura
+    apply();
 
     let last = performance.now();
     const tick = (now: number) => {
@@ -97,10 +101,11 @@ export default function OctaPrism({
     e.currentTarget.setPointerCapture(e.pointerId);
     startRef.current = { x: e.clientX, y: e.clientY };
     baseRotRef.current = { ...rotRef.current };
+    draggingRef.current = true;
     setDragging(true);
   };
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragging || !startRef.current) return;
+    if (!draggingRef.current || !startRef.current) return;
     const dx = e.clientX - startRef.current.x;
     const dy = e.clientY - startRef.current.y;
     const speed = 0.35;
@@ -119,6 +124,7 @@ export default function OctaPrism({
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
     } catch {}
+    draggingRef.current = false;
     setDragging(false);
   };
   const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
