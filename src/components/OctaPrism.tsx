@@ -141,13 +141,35 @@ export default function OctaPrism({
     [R]
   );
 
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          visibleRef.current = e.isIntersecting;
+        }
+      },
+      { root: null, threshold: 0 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div
       className="octa-root dark transparent"
+      ref={rootRef}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
-      onWheel={onWheel}
+      onWheel={(e) => {
+        onWheel(e);
+        window.dispatchEvent(new CustomEvent("scene-invalidate"));
+      }}
+      onPointerOver={() => window.dispatchEvent(new CustomEvent("scene-invalidate"))}
+      onPointerOut={() => window.dispatchEvent(new CustomEvent("scene-invalidate"))}
     >
       <div className="scene" style={{ perspective: `${900}px` }}>
         <div

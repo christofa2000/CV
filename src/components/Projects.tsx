@@ -388,7 +388,11 @@ const Projects = () => {
   const t = { es: { title: "Proyectos", view: "Ver Proyecto", noimg: "Imagen no disponible" }, en: { title: "Projects", view: "View Project", noimg: "Image unavailable" } }[lang];
   const labels = useMemo(() => ({ view: t.view, noimg: t.noimg }), [t.view, t.noimg]);
   return (
-    <Box id="projects" sx={{ mb: 5, backgroundColor: "transparent" }}>
+    <Box
+      id="projects"
+      sx={{ mb: 5, backgroundColor: "transparent" }}
+      style={{ contentVisibility: "auto", containIntrinsicSize: "800px" }}
+    >
       <Typography
         variant="h5"
         component="h2"
