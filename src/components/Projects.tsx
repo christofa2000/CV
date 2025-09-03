@@ -15,6 +15,33 @@ import { useLanguage } from "../LanguageContext";
 
 import ElectricBorder from "./ElectricBorder";
 
+// Estilos estáticos para reducir churn en listas
+const cardSx = {
+  height: "100%",
+  backgroundColor: "transparent",
+  border: "none",
+  borderRadius: 2,
+  overflow: "hidden",
+  transition: "transform .2s ease, box-shadow .2s ease",
+  "&:hover": { transform: "translateY(-4px)", boxShadow: "0 16px 44px rgba(0,0,0,.3)" },
+} as const;
+const imgSx = { width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" } as const;
+const fallbackImgBoxSx = {
+  width: "100%",
+  aspectRatio: "4/3",
+  display: "grid",
+  placeItems: "center",
+  background: "repeating-linear-gradient(45deg, rgba(255,255,255,0.06) 0 12px, rgba(255,255,255,0.02) 12px 24px)",
+} as const;
+const descSx = {
+  display: "-webkit-box",
+  WebkitLineClamp: 4,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  mb: 1.25,
+} as const;
+const chipsRowSx = { display: "flex", flexWrap: "wrap", gap: 0.75 } as const;
+
 /* =======================
    Tipos
 ======================= */
@@ -266,6 +293,7 @@ const MAX_CHIPS = 6;
 
 const ProjectCard = memo(({ project, labels }: { project: Project; labels: { view: string; noimg: string } }) => {
   const [imgOk, setImgOk] = useState(true);
+  const chips = useMemo(() => project.stack.slice(0, MAX_CHIPS), [project.stack]);
 
   return (
     <ElectricBorder
@@ -275,48 +303,11 @@ const ProjectCard = memo(({ project, labels }: { project: Project; labels: { vie
       thickness={1.25}
       style={{ borderRadius: 12 }}
     >
-      <Card
-        className="project-card"
-        data-tilt="true"
-        sx={{
-          height: "100%",
-          backgroundColor: "transparent",
-          border: "none",
-          borderRadius: 2,
-          overflow: "hidden",
-          transition: "transform .2s ease, box-shadow .2s ease",
-          "&:hover": {
-            transform: "translateY(-4px)",
-            boxShadow: "0 16px 44px rgba(0,0,0,.3)",
-          },
-        }}
-      >
+      <Card className="project-card" data-tilt="true" sx={cardSx}>
         {imgOk ? (
-          <Box
-            component="img"
-            src={project.imageSrc}
-            alt={project.title}
-            loading="lazy"
-            decoding="async"
-            onError={() => setImgOk(false)}
-            sx={{
-              width: "100%",
-              aspectRatio: "4/3",
-              objectFit: "cover",
-              display: "block",
-            }}
-          />
+          <Box component="img" src={project.imageSrc} alt={project.title} loading="lazy" decoding="async" onError={() => setImgOk(false)} sx={imgSx} />
         ) : (
-          <Box
-            sx={{
-              width: "100%",
-              aspectRatio: "4/3",
-              display: "grid",
-              placeItems: "center",
-              background:
-                "repeating-linear-gradient(45deg, rgba(255,255,255,0.06) 0 12px, rgba(255,255,255,0.02) 12px 24px)",
-            }}
-          >
+          <Box sx={fallbackImgBoxSx}>
             <Typography variant="body2" color="text.secondary">
               {labels.noimg}
             </Typography>
@@ -328,23 +319,13 @@ const ProjectCard = memo(({ project, labels }: { project: Project; labels: { vie
             {project.title}
           </Typography>
           {project.description && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                display: "-webkit-box",
-                WebkitLineClamp: 4,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                mb: 1.25,
-              }}
-            >
+            <Typography variant="body2" color="text.secondary" sx={descSx}>
               {project.description}
             </Typography>
           )}
 
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
-            {project.stack.slice(0, MAX_CHIPS).map((s) => (
+          <Box sx={chipsRowSx}>
+            {chips.map((s) => (
               <SkillChip key={`${project.title}-${s.name}`} skill={s} />
             ))}
             {project.stack.length > MAX_CHIPS && (
@@ -391,7 +372,7 @@ const Projects = () => {
     <Box
       id="projects"
       sx={{ mb: 5, backgroundColor: "transparent" }}
-      style={{ contentVisibility: "auto", containIntrinsicSize: "800px" }}
+      style={{ contentVisibility: "auto", containIntrinsicSize: "1200px 1200px" }}
     >
       <Typography
         variant="h5"

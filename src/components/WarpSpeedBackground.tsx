@@ -54,7 +54,9 @@ export default function WarpSpeedBackground({
 
     const init = () => {
       const { width, height } = canvas.getBoundingClientRect();
-      const count = Math.max(220, Math.floor(width * height * density));
+      const isMobile = Math.min(width, height) < 600;
+      const densityAdj = reducedRef.current ? density * 0.2 : isMobile ? density * 0.6 : density;
+      const count = Math.max(180, Math.floor(width * height * densityAdj));
       const arr: WarpStar[] = new Array(count).fill(0).map(() => ({
         x: 0,
         y: 0,

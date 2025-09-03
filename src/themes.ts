@@ -17,6 +17,9 @@ const createBaseThemeOptions = (options: ThemeOptions): ThemeOptions => ({
           background-color: #000;  /* fondo neutro para el warp */
           background-image: none;  /* quitamos estrellas CSS */
         }
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
       `,
     },
     MuiCard: {
@@ -30,6 +33,9 @@ const createBaseThemeOptions = (options: ThemeOptions): ThemeOptions => ({
           "&:hover": { transform: "translateY(-5px)" },
         },
       },
+    },
+    MuiPaper: {
+      defaultProps: { elevation: 0 },
     },
     MuiButtonBase: {
       defaultProps: {

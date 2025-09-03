@@ -113,12 +113,14 @@ export default function OctaPrism({
       x: clamp(baseRotRef.current.x - dy * speed, -80, 80),
       y: baseRotRef.current.y + dx * speed,
     };
-    // aplicar sin re-render
+    // aplicar sin re-render, throttle con rAF implícito
     if (cameraRef.current) {
       const { x, y } = rotRef.current;
       const z = zoomRef.current;
       cameraRef.current.style.transform = `scale(${z}) rotateX(${x}deg) rotateY(${y}deg)`;
     }
+    // despertar CanvasShell si existe
+    window.dispatchEvent(new CustomEvent("scene-invalidate"));
   };
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     try {
@@ -134,6 +136,7 @@ export default function OctaPrism({
       const z = zoomRef.current;
       cameraRef.current.style.transform = `scale(${z}) rotateX(${x}deg) rotateY(${y}deg)`;
     }
+    window.dispatchEvent(new CustomEvent("scene-invalidate"));
   };
 
   const faces = useMemo(
