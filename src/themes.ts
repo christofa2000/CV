@@ -24,11 +24,21 @@ const createBaseThemeOptions = (options: ThemeOptions): ThemeOptions => ({
         root: {
           borderRadius: 16,
           border: "1px solid rgba(255, 255, 255, 0.1)",
-          backgroundColor: "rgba(30, 30, 30, 0.75)",
-          backdropFilter: "blur(10px)",
+          backgroundColor: "rgba(30, 30, 30, 0.72)",
+          backdropFilter: "blur(8px)",
           transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
           "&:hover": { transform: "translateY(-5px)" },
         },
+      },
+    },
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true,
+      },
+    },
+    MuiButton: {
+      defaultProps: {
+        disableElevation: true,
       },
     },
     MuiChip: { styleOverrides: { root: { fontWeight: 500 } } },

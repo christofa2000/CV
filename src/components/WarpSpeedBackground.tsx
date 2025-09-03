@@ -35,6 +35,8 @@ export default function WarpSpeedBackground({
     active: false,
   });
   const reducedRef = useRef<boolean>(false);
+  const runningRef = useRef<boolean>(true);
+  const visibleRef = useRef<boolean>(true);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -68,6 +70,10 @@ export default function WarpSpeedBackground({
 
     let last = performance.now();
     const loop = (now: number) => {
+      if (!runningRef.current || !visibleRef.current) {
+        animRef.current = requestAnimationFrame(loop);
+        return;
+      }
       const dt = Math.min(33, now - last);
       last = now;
 
@@ -160,17 +166,36 @@ export default function WarpSpeedBackground({
       mouseRef.current.active = false;
     };
 
-    canvas.addEventListener("mousemove", onMove);
-    canvas.addEventListener("mouseleave", onLeave);
+    canvas.addEventListener("mousemove", onMove, { passive: true } as any);
+    canvas.addEventListener("mouseleave", onLeave, { passive: true } as any);
 
     const onResize = () => init();
     window.addEventListener("resize", onResize);
 
+    // Pausar cuando la pestaña no está visible
+    const onVisibility = () => {
+      runningRef.current = !document.hidden;
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    // Pausar cuando el canvas sale de viewport
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          visibleRef.current = e.isIntersecting;
+        }
+      },
+      { root: null, threshold: 0 }
+    );
+    io.observe(canvas);
+
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
-      canvas.removeEventListener("mousemove", onMove);
-      canvas.removeEventListener("mouseleave", onLeave);
+      canvas.removeEventListener("mousemove", onMove as any);
+      canvas.removeEventListener("mouseleave", onLeave as any);
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibility);
+      io.disconnect();
     };
   }, [interactive, density, speed]);
 

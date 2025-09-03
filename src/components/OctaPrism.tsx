@@ -45,27 +45,58 @@ export default function OctaPrism({
   const panelW = 2 * R * Math.tan(Math.PI / 8);
   const panelH = size;
 
-  const [rot, setRot] = useState<{ x: number; y: number }>({ x: -10, y: 20 });
-  const [zoom, setZoom] = useState(1);
-  const [playing] = useState(autoRotate);
   const [dragging, setDragging] = useState(false);
-
   const startRef = useRef<{ x: number; y: number } | null>(null);
-  const baseRotRef = useRef(rot);
+  const rotRef = useRef<{ x: number; y: number }>({ x: -10, y: 20 });
+  const baseRotRef = useRef(rotRef.current);
+  const zoomRef = useRef(1);
+  const playingRef = useRef<boolean>(autoRotate);
+  const reducedRef = useRef<boolean>(false);
+  const visibleRef = useRef<boolean>(true);
+  const rafRef = useRef<number | null>(null);
+  const cameraRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!playing || dragging) return;
-    const id = window.setInterval(
-      () => setRot((r) => ({ x: r.x, y: r.y + 0.35 })),
-      16
-    );
-    return () => window.clearInterval(id);
-  }, [playing, dragging]);
+    reducedRef.current =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    playingRef.current = autoRotate && !reducedRef.current;
+
+    const apply = () => {
+      const el = cameraRef.current;
+      if (!el) return;
+      const { x, y } = rotRef.current;
+      const z = zoomRef.current;
+      el.style.transform = `scale(${z}) rotateX(${x}deg) rotateY(${y}deg)`;
+    };
+
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(33, now - last);
+      last = now;
+      if (visibleRef.current && playingRef.current && !dragging) {
+        // rotación suave sin tocar el estado de React
+        rotRef.current = { x: rotRef.current.x, y: rotRef.current.y + 0.35 * (dt / 16) };
+        apply();
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+
+    const onVis = () => {
+      visibleRef.current = !document.hidden;
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [autoRotate, dragging]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     startRef.current = { x: e.clientX, y: e.clientY };
-    baseRotRef.current = { ...rot };
+    baseRotRef.current = { ...rotRef.current };
     setDragging(true);
   };
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -73,10 +104,16 @@ export default function OctaPrism({
     const dx = e.clientX - startRef.current.x;
     const dy = e.clientY - startRef.current.y;
     const speed = 0.35;
-    setRot({
+    rotRef.current = {
       x: clamp(baseRotRef.current.x - dy * speed, -80, 80),
       y: baseRotRef.current.y + dx * speed,
-    });
+    };
+    // aplicar sin re-render
+    if (cameraRef.current) {
+      const { x, y } = rotRef.current;
+      const z = zoomRef.current;
+      cameraRef.current.style.transform = `scale(${z}) rotateX(${x}deg) rotateY(${y}deg)`;
+    }
   };
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     try {
@@ -84,8 +121,14 @@ export default function OctaPrism({
     } catch {}
     setDragging(false);
   };
-  const onWheel = (e: React.WheelEvent<HTMLDivElement>) =>
-    setZoom(clamp(zoom + (e.deltaY > 0 ? -0.08 : 0.08), 0.6, 2));
+  const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    zoomRef.current = clamp(zoomRef.current + (e.deltaY > 0 ? -0.08 : 0.08), 0.6, 2);
+    if (cameraRef.current) {
+      const { x, y } = rotRef.current;
+      const z = zoomRef.current;
+      cameraRef.current.style.transform = `scale(${z}) rotateX(${x}deg) rotateY(${y}deg)`;
+    }
+  };
 
   const faces = useMemo(
     () => new Array(8).fill(0).map((_, i) => ({ rotY: i * 45, translateZ: R })),
@@ -103,9 +146,8 @@ export default function OctaPrism({
       <div className="scene" style={{ perspective: `${900}px` }}>
         <div
           className="camera"
-          style={{
-            transform: `scale(${zoom}) rotateX(${rot.x}deg) rotateY(${rot.y}deg)`,
-          }}
+          ref={cameraRef}
+          data-dragging={dragging ? "1" : "0"}
         >
           <div className="ring" style={{ width: panelW, height: panelH }}>
             {faces.map((f, i) => (
@@ -132,14 +174,11 @@ export default function OctaPrism({
       </div>
 
       <style>{`
-        .octa-root { position: relative; width: 100%; min-height: 420px; display: grid; place-items: center; user-select: none; padding: 16px; box-sizing: border-box; cursor: ${
-          dragging ? "grabbing" : "grab"
-        }; }
+        .octa-root { position: relative; width: 100%; min-height: 420px; display: grid; place-items: center; user-select: none; padding: 16px; box-sizing: border-box; cursor: grab; }
         .octa-root.dark.transparent { background: transparent; }
         .scene { width: 100%; max-width: 880px; height: 360px; display: grid; place-items: center; }
-        .camera { transform-style: preserve-3d; transition: transform ${
-          dragging ? 0 : 220
-        }ms ease; }
+        .camera { transform-style: preserve-3d; transition: transform 220ms ease; will-change: transform; }
+        .camera[data-dragging="1"] { transition: none; cursor: grabbing; }
         .ring { position: relative; transform-style: preserve-3d; }
         .face { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; translate: -50% -50%; display: grid; place-items: center; border-radius: 14px; box-shadow: inset 0 0 22px rgba(255,255,255,0.08), 0 10px 26px rgba(0,0,0,0.45); }
         .icon { width: 42%; max-width: 160px; aspect-ratio: 1/1; object-fit: contain; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.45)); }

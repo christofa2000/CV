@@ -1,18 +1,16 @@
 // src/components/Projects.tsx
-import {
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  CardActions,
-  Box,
-  Chip,
-  Avatar,
-  Divider,
-} from "@mui/material";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import CardActions from "@mui/material/CardActions";
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import Avatar from "@mui/material/Avatar";
+import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import OpenInNew from "@mui/icons-material/OpenInNew";
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useLanguage } from "../LanguageContext";
 
 import ElectricBorder from "./ElectricBorder";
@@ -266,12 +264,7 @@ const projects: Project[] = [
 ======================= */
 const MAX_CHIPS = 6;
 
-const ProjectCard = ({ project }: { project: Project }) => {
-  const { lang } = useLanguage();
-  const t = {
-    es: { view: "Ver Proyecto", noimg: "Imagen no disponible" },
-    en: { view: "View Project", noimg: "Image unavailable" },
-  }[lang];
+const ProjectCard = memo(({ project, labels }: { project: Project; labels: { view: string; noimg: string } }) => {
   const [imgOk, setImgOk] = useState(true);
 
   return (
@@ -304,6 +297,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
             src={project.imageSrc}
             alt={project.title}
             loading="lazy"
+            decoding="async"
             onError={() => setImgOk(false)}
             sx={{
               width: "100%",
@@ -324,7 +318,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
             }}
           >
             <Typography variant="body2" color="text.secondary">
-              {t.noimg}
+              {labels.noimg}
             </Typography>
           </Box>
         )}
@@ -375,7 +369,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {t.view}
+                {labels.view}
               </Button>
             </CardActions>
           </>
@@ -383,14 +377,16 @@ const ProjectCard = ({ project }: { project: Project }) => {
       </Card>
     </ElectricBorder>
   );
-};
+});
+ProjectCard.displayName = "ProjectCard";
 
 /* =======================
    Grid responsivo
 ======================= */
 const Projects = () => {
   const { lang } = useLanguage();
-  const t = { es: { title: "Proyectos" }, en: { title: "Projects" } }[lang];
+  const t = { es: { title: "Proyectos", view: "Ver Proyecto", noimg: "Imagen no disponible" }, en: { title: "Projects", view: "View Project", noimg: "Image unavailable" } }[lang];
+  const labels = useMemo(() => ({ view: t.view, noimg: t.noimg }), [t.view, t.noimg]);
   return (
     <Box id="projects" sx={{ mb: 5, backgroundColor: "transparent" }}>
       <Typography
@@ -403,7 +399,7 @@ const Projects = () => {
       <Grid container spacing={2.5}>
         {projects.map((p) => (
           <Grid key={p.title} size={{ xs: 12, sm: 6, md: 6, lg: 4 }}>
-            <ProjectCard project={p} />
+            <ProjectCard project={p} labels={labels} />
           </Grid>
         ))}
       </Grid>

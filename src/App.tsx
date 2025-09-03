@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Box, Container, Fade } from "@mui/material";
 import Header from "./components/Header";
 import { LanguageProvider } from "./LanguageContext";
-import AboutMe from "./components/AboutMe";
-import Projects from "./components/Projects";
-import Contact from "./components/Contact";
-import Body from "./layout/Body";
-import WarpSpeedBackground from "./components/WarpSpeedBackground";
-// 👈 nuevo import
+
+// Carga diferida de secciones pesadas para reducir JS inicial
+const AboutMe = lazy(() => import("./components/AboutMe"));
+const Body = lazy(() => import("./layout/Body"));
+const Projects = lazy(() => import("./components/Projects"));
+const Contact = lazy(() => import("./components/Contact"));
+const WarpSpeedBackground = lazy(() => import("./components/WarpSpeedBackground"));
 
 // Hook: animación escalonada con soporte reduced-motion
 const useAnimatedSections = (count: number) => {
@@ -60,19 +61,33 @@ function App() {
 
   const loadedSections = useAnimatedSections(sections.length);
 
+  // Prefetch de chunks diferidos cuando el hilo esté libre
+  useEffect(() => {
+    const idle = (cb: () => void) =>
+      (window as any).requestIdleCallback ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 150);
+    idle(() => {
+      import('./components/Projects');
+      import('./layout/Body');
+      import('./components/Contact');
+      import('./components/AboutMe');
+    });
+  }, []);
+
   return (
     <LanguageProvider>
       {/* Fondo hipervelocidad detrás de todo */}
-      <WarpSpeedBackground
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-        speed={0.05} // aún más lento
-        density={1 / 1900} // subí a 1/1400 si querés más partículas
-      />
+      <Suspense fallback={null}>
+        <WarpSpeedBackground
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+          speed={0.05}
+          density={1 / 1900}
+        />
+      </Suspense>
 
       {/* Tu contenido por encima */}
       <Box
@@ -87,18 +102,20 @@ function App() {
         <Container maxWidth="lg">
           <Header />
           <Box component="main">
-            {sections.map((section, index) => {
-              const inProp = loadedSections[index];
-              return (
-                <Fade
-                  in={inProp}
-                  timeout={prefersReduced ? 250 : 1000}
-                  key={section.id}
-                >
-                  <div>{section.node}</div>
-                </Fade>
-              );
-            })}
+            <Suspense fallback={<div />}> {/* Fallback mínimo para evitar CLS */}
+              {sections.map((section, index) => {
+                const inProp = loadedSections[index];
+                return (
+                  <Fade
+                    in={inProp}
+                    timeout={prefersReduced ? 250 : 1000}
+                    key={section.id}
+                  >
+                    <div>{section.node}</div>
+                  </Fade>
+                );
+              })}
+            </Suspense>
           </Box>
         </Container>
       </Box>
