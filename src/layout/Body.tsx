@@ -21,7 +21,7 @@ function ConditionalCanvas() {
       for (const e of entries) {
         if (e.isIntersecting) setEnabled(true);
       }
-    }, { root: null, threshold: 0 });
+    }, { root: null, threshold: 0, rootMargin: "300px 0px" });
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -37,19 +37,20 @@ function ConditionalCanvas() {
   );
 }
 
-// Idle prefetch for heavy routes/chunks
+// Idle prefetch helper
 const onIdle = (cb: () => void) =>
   "requestIdleCallback" in window
     ? (window as any).requestIdleCallback(cb, { timeout: 2000 })
     : setTimeout(cb, 1200);
 
-// Prefetch Projects and r3f scene in idle time
-useEffect(() => {
-  onIdle(() => import("../components/Projects"));
-  onIdle(() => import("../three/InnerThreeScene"));
-}, []);
-
 export default function Body() {
+  // Prefetch Projects primero y luego InnerThreeScene sin competir
+  useEffect(() => {
+    onIdle(async () => {
+      await import("../components/Projects");
+      onIdle(() => import("../three/InnerThreeScene"));
+    });
+  }, []);
   return (
     <Box
       sx={{
@@ -69,6 +70,8 @@ export default function Body() {
           position: "relative",
         }}
       >
+        {/* Placeholder para estabilizar layout del shell 3D en desktop */}
+        <Box aria-hidden sx={{ display: { xs: "none", md: "block" }, minHeight: 360 }} />
         {/** Carga condicional del Canvas solo en desktop, visible y sin reduced-motion */}
         <ConditionalCanvas />
         <OctaPrism />
